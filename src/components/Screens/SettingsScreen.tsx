@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { Activity, Save, RefreshCw, Monitor as DeviceMonitor, Settings as SettingsIcon, Eye, EyeOff, FolderOpen, Copy, CheckCircle, Menu as MenuIcon, X } from 'lucide-react';
-import { BaseScreenProps, SidebarNavItemProps } from "../../../types";
+import { Save, RefreshCw, Monitor as DeviceMonitor, Settings as SettingsIcon, Eye, EyeOff, FolderOpen, Copy, Menu as MenuIcon, X, ArrowLeft, CheckCircle } from 'lucide-react';
+import { SidebarNavItemProps } from "../../../types";
 import { SCREEN_NAMES } from "../../../constants";
 import FormSection from '../shared/FormSection';
 import InputWithIconButton from '../shared/InputWithIconButton';
 import { LabelledInput } from '../shared/FormControls';
-
-
+import { useMedicalNavigation } from '../../hooks/useMedicalNavigation';
 
 const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ icon, label, isActive, onClick, theme }) => {
   const activeBg = isActive ? `bg-gradient-to-r ${theme.primary}` : '';
-  const activeText = isActive ? 'text-white' : 'text-white'; // Always white text on dark sidebar
-  const hoverBg = isActive ? '' : 'hover:bg-white/10'; // Always white/10 for good contrast
+  const activeText = isActive ? 'text-white' : 'text-white';
+  const hoverBg = isActive ? '' : 'hover:bg-white/10';
 
   return (
     <button
@@ -25,15 +24,19 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ icon, label, isActive, 
   );
 };
 
-const SettingsScreen: React.FC<BaseScreenProps> = ({ 
+const SettingsScreen: React.FC = () => {
+  const { 
     theme, 
     setCurrentScreen, 
     isMidnightTheme, 
     currentThemeKey, 
-    setShowThemeSelector
-}) => {
+    handleThemeChange 
+  } = useMedicalNavigation();
+
   const [showFtpPassword, setShowFtpPassword] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  if (!theme) return <div>Loading...</div>;
 
   const sidebarAccentBg = `bg-gradient-to-b ${theme.accent}`;
   const sidebarTextColor = 'text-white';
@@ -43,7 +46,7 @@ const SettingsScreen: React.FC<BaseScreenProps> = ({
       <div className={`flex items-center ${isMobile ? 'justify-between' : ''} space-x-2 mb-4 sm:mb-6 md:mb-7 lg:mb-8 p-2 border-b border-white/20`}>
         <div className="flex items-center space-x-2 md:space-x-3">
           <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 bg-gradient-to-r ${theme.primary} rounded-lg flex items-center justify-center`}>
-            <Activity className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" />
+            <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" />
           </div>
           <span className={`text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold ${sidebarTextColor}`}>Menu</span>
         </div>
@@ -56,10 +59,10 @@ const SettingsScreen: React.FC<BaseScreenProps> = ({
       <nav className="space-y-1.5 sm:space-y-2 md:space-y-2.5 lg:space-y-3 flex-grow">
         <SidebarNavItem icon={<Save size={18} className="sm:size-5 md:size-6 lg:size-7" />} label="Save" theme={theme} onClick={() => console.log("Save clicked")} />
         <SidebarNavItem icon={<RefreshCw size={18} className="sm:size-5 md:size-6 lg:size-7" />} label="Restart" theme={theme} onClick={() => console.log("Restart clicked")} />
-        <SidebarNavItem icon={<DeviceMonitor size={18} className="sm:size-5 md:size-6 lg:size-7" />} label="Devices" theme={theme} onClick={() => console.log("Devices clicked")} />
+        <SidebarNavItem icon={<DeviceMonitor size={18} className="sm:size-5 md:size-6 lg:size-7" />} label="Devices" theme={theme} onClick={() => setCurrentScreen(SCREEN_NAMES.DEVICE_CONFIGURATION)} />
         <SidebarNavItem 
-          icon={<SettingsIcon size={18} className="sm:size-5 md:size-6 lg:size-7" />} 
-          label="Advanced" 
+          icon={<ArrowLeft size={18} className="sm:size-5 md:size-6 lg:size-7" />} 
+          label="Return to Dashboard" 
           theme={theme} 
           onClick={() => {
              setCurrentScreen(SCREEN_NAMES.DASHBOARD);
@@ -118,7 +121,7 @@ const SettingsScreen: React.FC<BaseScreenProps> = ({
             <MenuIcon size={24} />
           </button>
           <button
-            onClick={() => setShowThemeSelector && setShowThemeSelector(true)}
+            onClick={() => handleThemeChange(currentThemeKey === 'noah' ? 'black' : 'noah')}
             className={`p-2 ${theme.card} backdrop-blur-lg rounded-xl shadow-lg border border-white/20 hover:scale-105`}
             title="Change Theme"
           >
@@ -127,15 +130,13 @@ const SettingsScreen: React.FC<BaseScreenProps> = ({
         </div>
          {/* Desktop Theme Button in content area */}
          <div className="hidden md:flex justify-end mb-4 lg:mb-6">
-            {setShowThemeSelector && (
-                <button
-                    onClick={() => setShowThemeSelector(true)}
-                    className={`p-3 md:p-3.5 lg:p-4 ${theme.card} backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 hover:scale-105 transition-all duration-200`}
-                    title="Change Theme"
-                >
-                    <div className={`w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-gradient-to-r ${theme.primary} rounded-lg`}></div>
-                </button>
-            )}
+            <button
+                onClick={() => handleThemeChange(currentThemeKey === 'noah' ? 'black' : 'noah')}
+                className={`p-3 md:p-3.5 lg:p-4 ${theme.card} backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 hover:scale-105 transition-all duration-200`}
+                title="Change Theme"
+            >
+                <div className={`w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-gradient-to-r ${theme.primary} rounded-lg`}></div>
+            </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10">

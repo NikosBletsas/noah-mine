@@ -1,12 +1,15 @@
 
 import React from 'react';
-import { FileText, Monitor, X, ArrowLeft, Activity } from 'lucide-react';
-import { BaseScreenProps } from "../../../types";
+import { FileText, Monitor, X, ArrowLeft } from 'lucide-react';
 import { SCREEN_NAMES } from "../../../constants";
 import AppHeader from '../Layout/AppHeader';
+import { useMedicalNavigation } from '../../hooks/useMedicalNavigation';
 
+const SpirometerScreen: React.FC = () => {
+  const { theme, setCurrentScreen, isMidnightTheme, handleThemeChange, currentThemeKey } = useMedicalNavigation();
 
-const SpirometerScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScreen, setShowThemeSelector, isMidnightTheme }) => {
+  if (!theme) return <div>Loading...</div>;
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${theme.background} flex flex-col`}>
        <AppHeader 
@@ -14,8 +17,9 @@ const SpirometerScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScreen, 
         title="Respirometer Data" 
         onBack={() => setCurrentScreen(SCREEN_NAMES.MEASUREMENTS)}
         showThemeButton={true}
-        onShowThemeSelector={() => setShowThemeSelector?.(true)}
+        onThemeChange={handleThemeChange}
         isMidnightTheme={isMidnightTheme}
+        currentThemeKey={currentThemeKey}
       />
 
       <div className="p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 flex-grow">
@@ -23,7 +27,7 @@ const SpirometerScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScreen, 
           <div className={`bg-gradient-to-r ${theme.accent} ${theme.textOnAccent} p-3 sm:p-4 md:p-5 lg:p-6 rounded-lg sm:rounded-xl mb-4 sm:mb-6 md:mb-8`}>
             <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold">Obtain Test Results from Respirometer</h2>
           </div>
-
+          
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 lg:space-x-8">
             <div className="flex-1">
               <div className="bg-blue-50 border-2 border-blue-200 rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 lg:p-10 h-full">

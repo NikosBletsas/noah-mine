@@ -1,8 +1,9 @@
 import React from 'react';
 import { ArrowLeft, MonitorDot, AirVent, Activity, HeartPulse, ScanEye, Radio, Fingerprint, Thermometer, TestTubeDiagonal, PersonStanding, Stethoscope } from 'lucide-react';
-import { BaseScreenProps, ThemeKey, DeviceTileProps } from "../../../types";
+import { DeviceTileProps } from "../../../types";
 import { SCREEN_NAMES } from "../../../constants";
 import AppHeader from '../Layout/AppHeader';
+import { useMedicalNavigation } from '../../hooks/useMedicalNavigation';
 
 const DeviceTile: React.FC<DeviceTileProps> = ({ icon, label, onClick, gradient, borderColor, theme, currentThemeKey }) => (
   <div
@@ -14,17 +15,15 @@ const DeviceTile: React.FC<DeviceTileProps> = ({ icon, label, onClick, gradient,
   </div>
 );
 
-interface MedicalMeasurementsScreenProps extends BaseScreenProps {
-  setShowThemeSelector?: (show: boolean) => void;
-}
+const MedicalMeasurementsScreen: React.FC = () => { 
+  const { 
+    theme, 
+    setCurrentScreen, 
+    isMidnightTheme, 
+    currentThemeKey, 
+    handleThemeChange 
+  } = useMedicalNavigation();
 
-const MedicalMeasurementsScreen: React.FC<MedicalMeasurementsScreenProps> = ({ 
-  theme, 
-  setCurrentScreen, 
-  setShowThemeSelector, 
-  isMidnightTheme, 
-  currentThemeKey 
-}) => {
   const iconSize = "w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16";
   const devices = [
     { icon: <MonitorDot className={`${iconSize} mx-auto text-blue-600`} />, label: 'Patient Monitor', gradient: 'from-blue-50 to-blue-100', borderColor: 'border-blue-200', screen: SCREEN_NAMES.PATIENT_MONITOR },
@@ -40,14 +39,18 @@ const MedicalMeasurementsScreen: React.FC<MedicalMeasurementsScreenProps> = ({
     { icon: <Stethoscope className={`${iconSize} mx-auto text-cyan-600`} />, label: 'Stethoscope', gradient: 'from-cyan-50 to-cyan-100', borderColor: 'border-cyan-200', screen: undefined /* TODO */ },
   ];
   
+  if (!theme) return <div>Loading...</div>;
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${theme.background} flex flex-col`}>
       <AppHeader 
         theme={theme} 
         title="NOAH - Medical Devices" 
         onBack={() => setCurrentScreen(SCREEN_NAMES.DASHBOARD)}
-        showThemeButton={false}
+        showThemeButton={true}
+        onThemeChange={handleThemeChange}
         isMidnightTheme={isMidnightTheme}
+        currentThemeKey={currentThemeKey}
       />
 
       <div className="p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 flex-grow">

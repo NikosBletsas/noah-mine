@@ -1,4 +1,3 @@
-console.log("src/api.ts: Before swagger-typescript-api integration");
 import axios from "axios";
 
 const API_BASE_URL = "/api/LoginAPI"; // Adjust if needed

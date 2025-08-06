@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Database, ArrowLeft } from 'lucide-react';
-import { BaseScreenProps } from "../../../types";
+import { Database, ArrowLeft } from 'lucide-react';
 import { SCREEN_NAMES } from "../../../constants";
 import AppHeader from '../Layout/AppHeader';
+import { useMedicalNavigation } from '../../hooks/useMedicalNavigation';
 
 // Modern VitalSignCard Component
 const VitalSignCard = ({ value, label, theme, index }: { value: string, label: string, theme: any, index: number }) => (
@@ -23,7 +23,8 @@ const VitalSignCard = ({ value, label, theme, index }: { value: string, label: s
 );
 
 // Enhanced Patient Monitor Screen
-const PatientMonitorScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScreen, currentThemeKey, setShowThemeSelector, isMidnightTheme }) => {
+const PatientMonitorScreen: React.FC = () => {
+    const { theme, setCurrentScreen, currentThemeKey, handleThemeChange, isMidnightTheme } = useMedicalNavigation();
     const [progress, setProgress] = useState(65);
     const [logs, setLogs] = useState([
         { time: new Date().toLocaleString(), message: 'System initialized', type: 'info' },
@@ -74,6 +75,8 @@ const PatientMonitorScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScre
         return () => clearInterval(interval);
     }, []);
 
+    if (!theme) return <div>Loading...</div>;
+
     const vitalSignsData = [
         { value: `${vitalSigns.heartRate}`, label: 'Heart Rate', unit: 'bpm' },
         { value: `${vitalSigns.spO2}`, label: 'SpO2', unit: '%' },
@@ -93,7 +96,7 @@ const PatientMonitorScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScre
                 title="Patient Monitor" 
                 onBack={() => setCurrentScreen(SCREEN_NAMES.MEASUREMENTS)}
                 showThemeButton={true}
-                onThemeChange={setShowThemeSelector}
+                onThemeChange={handleThemeChange}
                 isMidnightTheme={isMidnightTheme}
                 currentThemeKey={currentThemeKey}
             />
@@ -125,7 +128,7 @@ const PatientMonitorScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScre
                         <div className="w-full xl:w-96 order-first xl:order-last">
                             <div className={`${theme.card} rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 h-full min-h-[300px] xl:min-h-[600px] border hover:border-gray-300 transition-all duration-300`}>
                                 <div className="flex items-center justify-center mb-4 sm:mb-6">
-                                    <Activity className={`${theme.icon} mr-3`} size={24} />
+                                    <Database className={`${theme.icon} mr-3`} size={24} />
                                     <h3 className={`text-lg sm:text-xl md:text-2xl font-bold ${theme.textPrimary} tracking-tight`}>
                                         System Log
                                     </h3>

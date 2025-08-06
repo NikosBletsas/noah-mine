@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Monitor, Wifi, ShieldCheck, Eye, EyeOff, Loader } from 'lucide-react';
-import { BaseScreenProps, IconButtonProps } from '../../../types';
+import { Wifi, ShieldCheck, Eye, EyeOff, Loader } from 'lucide-react';
+import { IconButtonProps } from '../../../types';
 import { SCREEN_NAMES } from '../../../constants';
-
+import { useMedicalNavigation } from '../../hooks/useMedicalNavigation';
 import { Api } from "../../api";
 
 const IconButton: React.FC<IconButtonProps> = ({
@@ -31,15 +31,16 @@ const IconButton: React.FC<IconButtonProps> = ({
   );
 };
 
-const LoginScreen: React.FC<BaseScreenProps> = ({
-  theme,
-  setCurrentScreen,
-  onThemeChange,
-  isMidnightTheme,
-  currentThemeKey,
-  setShowConnectionStatus,
-  setShowConnectivityTest
-}) => {
+const LoginScreen: React.FC = () => {
+  const { 
+    theme, 
+    setCurrentScreen, 
+    currentThemeKey, 
+    isMidnightTheme,
+    setShowConnectionStatus,
+    setShowConnectivityTest
+  } = useMedicalNavigation();
+
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('');
@@ -50,19 +51,14 @@ const LoginScreen: React.FC<BaseScreenProps> = ({
 
   // LOGIN INIT API FETCH
   useEffect(() => {
-    console.log('LoginScreen useEffect called');
     if (!initCalled.current) {
       const initialize = async () => {
         try {
           const loginInitApi = new Api();
-          const initData = await loginInitApi.api.loginApiInitList();
-          console.log('Init API Response:', initData);
-          // Store initData in state if needed
+          await loginInitApi.api.loginApiInitList();
         } catch (error: any) {
           console.error('Init API Error:', error);
           setLoginError('Failed to initialize. Please try again.');
-        } finally {
-          console.log('LoginScreen useEffect finished');
         }
       };
       initialize();
@@ -73,44 +69,38 @@ const LoginScreen: React.FC<BaseScreenProps> = ({
 
   // LOGIN API FETCH
   const handleLogin = async () => {
-    console.log('handleLogin called');
     setIsLoading(true);
     setLoginError('');
 
     try {
       const loginApi = new Api();
-      const loginData = await loginApi.api.loginApiLoginList({ 
+      await loginApi.api.loginApiLoginList({ 
         user: username, 
         password: password 
       });
-      console.log('Login API Response:', loginData);
       setCurrentScreen(SCREEN_NAMES.DASHBOARD);
     } catch (error: any) {
       console.error('Login error:', error);
       setLoginError('Invalid username or password.');
     } finally {
       setIsLoading(false);
-      console.log('handleLogin finished');
     }
   };
 
   // OFFLINE LOGIN API FETCH  
   const handleLoginOffline = async () => {
-    console.log('handleLoginOffline called');
     setIsLoading(true);
     setLoginError('');
 
     try {
       const offlineLoginApi = new Api();
-      const loginOfflineData = await offlineLoginApi.api.loginApiLoginOfflineList();
-      console.log('LoginOffline API Response:', loginOfflineData);
+      await offlineLoginApi.api.loginApiLoginOfflineList();
       setCurrentScreen(SCREEN_NAMES.DASHBOARD);
     } catch (error: any) {
       console.error('Login Offline error:', error);
       setLoginError('Login Offline failed.');
     } finally {
       setIsLoading(false);
-      console.log('handleLoginOffline finished');
     }
   };
 
@@ -119,6 +109,11 @@ const LoginScreen: React.FC<BaseScreenProps> = ({
       handleLogin();
     }
   };
+
+  // This check is necessary because the context from the hook might be initially undefined.
+  if (!theme) {
+    return <div>Loading Theme...</div>;
+  }
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${theme.background} flex items-center justify-center p-4 sm:p-6 relative`}>
@@ -264,7 +259,10 @@ const LoginScreen: React.FC<BaseScreenProps> = ({
           <span className="text-xs sm:text-sm">POWERED BY</span>
           <div className="h-8 sm:h-10 flex items-center justify-center">
             <img
-              src='assets/TMA Logo Horizontal RGB.svg'
+              src={currentThemeKey === 'noah' 
+                ? '/assets/TMA Logo Horizontal RGB.svg'
+                : '/assets/TMA Logo Horizontal white RGB.svg'
+              }
               alt="TMA Logo"
               className="h-6 sm:h-8 w-auto object-contain max-w-32 sm:max-w-40"
             />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import {
   Search,
   Heart,
@@ -17,11 +18,41 @@ import {
   Pill,
   Brain,
 } from "lucide-react";
-import { BaseScreenProps, ThemeKey, DashboardTileProps } from "../../../types";
 import { SCREEN_NAMES } from "../../../constants";
 import { initializeDashboard } from "../../services/initializeDashboard";
 import { fetchBatteryStatus } from "../../services/batteryStatus";
 import { setupSignalRConnection } from "../../services/hubSignalR";
+import { legacyRouteMapper } from "@/router";
+
+// Types
+interface Theme {
+  background: string;
+  card: string;
+  textPrimary: string;
+  textSecondary: string;
+  accent: string;
+  textOnAccent: string;
+  icon: string;
+}
+
+interface DashboardTileProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+  theme: Theme;
+  isMidnightTheme: boolean;
+}
+
+interface AppOutletContext {
+  theme: Theme;
+  currentThemeKey: string;
+  isMidnightTheme: boolean;
+  handleThemeChange: (key: string) => void;
+  showConnectionStatus: boolean;
+  setShowConnectionStatus: (show: boolean) => void;
+  showConnectivityTest: boolean;
+  setShowConnectivityTest: (show: boolean) => void;
+}
 
 const DashboardTile: React.FC<DashboardTileProps> = ({
   icon,
@@ -43,14 +74,33 @@ const DashboardTile: React.FC<DashboardTileProps> = ({
   </div>
 );
 
-const DashboardScreen: React.FC<BaseScreenProps> = ({
-  theme,
-  setCurrentScreen,
-  isMidnightTheme,
-  currentThemeKey,
-  onThemeChange,
-}) => {
-  //hold the current time
+const DashboardScreen: React.FC = () => {
+  // Get context from React Router Outlet
+  const {
+    theme,
+    currentThemeKey,
+    isMidnightTheme,
+    handleThemeChange,
+    showConnectionStatus,
+    setShowConnectionStatus,
+    showConnectivityTest,
+    setShowConnectivityTest
+  } = useOutletContext<AppOutletContext>();
+
+  // Use navigate for routing
+  const navigate = useNavigate();
+
+  // Create setCurrentScreen function that uses navigate
+  const setCurrentScreen = (screenName: string) => {
+    const newRoute = legacyRouteMapper[screenName as keyof typeof legacyRouteMapper];
+    if (newRoute) {
+      navigate(newRoute);
+    } else {
+      console.warn(`Unknown screen: ${screenName}`);
+    }
+  };
+
+  // State management
   const [currentTime, setCurrentTime] = useState("");
   const [batteryStatus, setBatteryStatus] = useState<string | null>("N/A");
   const [heartbeat, setHeartbeat] = useState<any>(null);
@@ -60,7 +110,7 @@ const DashboardScreen: React.FC<BaseScreenProps> = ({
   const [caseNumber, setCaseNumber] = useState("N/A");
   const [videoStatus, setVideoStatus] = useState("N/A");
 
-  //update the time every second
+  // Update the time every second
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -71,13 +121,12 @@ const DashboardScreen: React.FC<BaseScreenProps> = ({
     };
 
     updateTime();
-
     const intervalId = setInterval(updateTime, 1000);
-
     return () => clearInterval(intervalId);
   }, []);
 
   const iconSize = "w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16";
+  
   const tiles = [
     {
       icon: <Search className={`${iconSize} mx-auto ${theme.icon}`} />,
@@ -143,6 +192,7 @@ const DashboardScreen: React.FC<BaseScreenProps> = ({
     },
   ];
 
+  // Initialize services
   useEffect(() => {
     const initServices = async () => {
       try {
@@ -189,6 +239,7 @@ const DashboardScreen: React.FC<BaseScreenProps> = ({
     <div
       className={`min-h-screen bg-gradient-to-br ${theme.background} relative flex flex-col pb-16 sm:pb-20 md:pb-24 lg:pb-28 xl:pb-32`}
     >
+      {/* Header */}
       <div
         className={`${theme.card} backdrop-blur-lg border-b border-white/20 p-3 sm:p-4 md:p-5 lg:p-6 z-10`}
       >
@@ -212,6 +263,7 @@ const DashboardScreen: React.FC<BaseScreenProps> = ({
         </div>
       </div>
 
+      {/* Status Information Bar */}
       <div
         className={`bg-gradient-to-r ${theme.accent} ${theme.textOnAccent} p-3 sm:p-4 md:p-5 lg:p-6`}
       >
@@ -274,6 +326,7 @@ const DashboardScreen: React.FC<BaseScreenProps> = ({
         </div>
       </div>
 
+      {/* Main Grid of Tiles */}
       <div className="p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 flex-grow overflow-y-auto">
         <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-7">
           {tiles.map((tile) => (
@@ -291,6 +344,7 @@ const DashboardScreen: React.FC<BaseScreenProps> = ({
         </div>
       </div>
 
+      {/* Bottom Navigation Bar */}
       <div
         className={`fixed bottom-0 left-0 right-0 bg-gradient-to-r ${
           theme.accent

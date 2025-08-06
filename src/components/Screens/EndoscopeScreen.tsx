@@ -1,14 +1,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Play, Square, ArrowLeft, AlertTriangle } from 'lucide-react';
-import { BaseScreenProps } from "../../../types";
 import { SCREEN_NAMES } from "../../../constants";
 import AppHeader from '../Layout/AppHeader';
+import { useMedicalNavigation } from '../../hooks/useMedicalNavigation';
 
 /**
  * Screen for Endoscope functionality, including camera feed, recording, and resolution settings.
  */
-const EndoscopeScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScreen, setShowThemeSelector, isMidnightTheme }) => {
+const EndoscopeScreen: React.FC = () => {
+  const { theme, setCurrentScreen, isMidnightTheme, handleThemeChange, currentThemeKey } = useMedicalNavigation();
   const [isRecording, setIsRecording] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -66,6 +67,8 @@ const EndoscopeScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScreen, s
     console.log(isRecording ? "Stopping recording..." : "Starting recording...");
   };
 
+  if (!theme) return <div>Loading...</div>;
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${theme.background} flex flex-col`}>
     <AppHeader 
@@ -75,9 +78,10 @@ const EndoscopeScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScreen, s
         stopCamera();
         setCurrentScreen(SCREEN_NAMES.MEASUREMENTS);
       }}
-      showThemeButton={!!setShowThemeSelector} // Only show if function exists
-      onShowThemeSelector={setShowThemeSelector ? () => setShowThemeSelector(true) : undefined}
+      showThemeButton={true}
+      onThemeChange={handleThemeChange}
       isMidnightTheme={isMidnightTheme}
+      currentThemeKey={currentThemeKey}
     />
 
       <div className="p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 flex-grow">

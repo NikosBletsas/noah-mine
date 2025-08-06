@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { X, RotateCcw, RefreshCw, Power } from 'lucide-react';
-import { BaseScreenProps, OperationButtonProps } from "../../../types";
+import { OperationButtonProps } from "../../../types";
 import { SCREEN_NAMES } from "../../../constants";
-
+import { useMedicalNavigation } from '../../hooks/useMedicalNavigation';
 
 const OperationButton: React.FC<OperationButtonProps> = ({ icon, label, gradient, borderColor, textColor, onClick, theme }) => (
   <div
@@ -17,8 +17,11 @@ const OperationButton: React.FC<OperationButtonProps> = ({ icon, label, gradient
   </div>
 );
 
+const SystemOperationsScreen: React.FC = () => {
+  const { theme, setCurrentScreen } = useMedicalNavigation();
 
-const SystemOperationsScreen: React.FC<BaseScreenProps> = ({ theme, setCurrentScreen, isMidnightTheme }) => {
+  if (!theme) return <div>Loading...</div>;
+
   return (
     <div className={`fixed inset-0 bg-gradient-to-br ${theme.background} bg-opacity-80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-30`} onClick={() => setCurrentScreen(SCREEN_NAMES.DASHBOARD)}>
       <div 

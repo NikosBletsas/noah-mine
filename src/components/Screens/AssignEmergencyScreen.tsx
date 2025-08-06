@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { ArrowLeft, RefreshCw, Send } from 'lucide-react';
-import { BaseScreenProps } from '../../../types'
 import { SCREEN_NAMES } from "../../../constants";
-import AppHeader from '../Layout/AppHeader'
+import AppHeader from '../Layout/AppHeader';
+import { useMedicalNavigation } from '../../hooks/useMedicalNavigation';
 
-const AssignEmergencyScreen: React.FC<BaseScreenProps> = ({ 
-  theme, 
-  setCurrentScreen, 
-  isMidnightTheme,
-  currentThemeKey,
-  setShowThemeSelector 
-}) => {
+const AssignEmergencyScreen: React.FC = () => {
+  const { theme, setCurrentScreen, isMidnightTheme, currentThemeKey, handleThemeChange } = useMedicalNavigation();
+  
   const [dateTimeValue, setDateTimeValue] = useState(() => {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -28,6 +24,8 @@ const AssignEmergencyScreen: React.FC<BaseScreenProps> = ({
 
   const tableHeaders = ["ID", "Available From", "Available Until", "Doctor Name", "Speciality", "Hospital"];
 
+  if (!theme) return <div>Loading...</div>;
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${theme.background} flex flex-col`}>
       <AppHeader 
@@ -35,7 +33,7 @@ const AssignEmergencyScreen: React.FC<BaseScreenProps> = ({
         title="Assign Emergency" 
         onBack={() => setCurrentScreen(SCREEN_NAMES.DASHBOARD)}
         showThemeButton={true}
-        onShowThemeSelector={setShowThemeSelector}
+        onThemeChange={handleThemeChange}
         isMidnightTheme={isMidnightTheme}
         currentThemeKey={currentThemeKey}
       />
@@ -98,11 +96,15 @@ const AssignEmergencyScreen: React.FC<BaseScreenProps> = ({
             />
           </div>
 
-          {/* Buttons Section - Horizontal layout like in the image */}
+          {/* Buttons Section - Enhanced with theme-based styling */}
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Primary button - Send Data */}
             <button 
-              className={`flex items-center justify-center space-x-3 bg-gradient-to-r ${theme.accent} ${theme.textOnAccent} px-6 py-3 rounded-lg hover:opacity-90 transition-opacity font-medium text-base`}
+              className={`flex items-center justify-center space-x-3 px-6 py-3 rounded-lg font-medium text-base ${
+                currentThemeKey === 'noah' 
+                  ? `bg-gradient-to-r ${theme.accent} ${theme.textOnAccent}` 
+                  : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+              }`}
             >
               <Send size={20} />
               <span>Send Data to DrTMA</span>
@@ -111,7 +113,11 @@ const AssignEmergencyScreen: React.FC<BaseScreenProps> = ({
             {/* Secondary buttons container */}
             <div className="flex flex-col sm:flex-row gap-4 sm:ml-auto">
               <button 
-                className={`flex items-center justify-center space-x-3 bg-gradient-to-r ${theme.accent} ${theme.textOnAccent} px-6 py-3 rounded-lg hover:opacity-90 transition-opacity font-medium text-base`}
+                className={`flex items-center justify-center space-x-3 px-6 py-3 rounded-lg font-medium text-base ${
+                  currentThemeKey === 'noah' 
+                    ? `bg-gradient-to-r ${theme.accent} ${theme.textOnAccent}` 
+                    : 'bg-gradient-to-r from-slate-600 to-slate-700 text-white'
+                }`}
               >
                 <RefreshCw size={20} />
                 <span>Refresh List</span>
@@ -119,7 +125,11 @@ const AssignEmergencyScreen: React.FC<BaseScreenProps> = ({
               
               <button
                 onClick={() => setCurrentScreen(SCREEN_NAMES.DASHBOARD)}
-                className={`flex items-center justify-center space-x-3 bg-gradient-to-r ${theme.accent} ${theme.textOnAccent} px-6 py-3 rounded-lg hover:opacity-90 transition-opacity font-medium text-base`}
+                className={`flex items-center justify-center space-x-3 px-6 py-3 rounded-lg font-medium text-base ${
+                  currentThemeKey === 'noah' 
+                    ? `bg-gradient-to-r ${theme.accent} ${theme.textOnAccent}` 
+                    : 'bg-gradient-to-r from-slate-600 to-slate-700 text-white'
+                }`}
               >
                 <ArrowLeft size={20} />
                 <span>Return</span>
