@@ -47,8 +47,8 @@ const ScreenLoader: React.FC<{ theme: any }> = ({ theme }) => (
 );
 
 interface AppContentProps {
-  screenManager: ReturnType<typeof import('../hooks/useScreenManager').useScreenManager>;
-  themeManager: ReturnType<typeof import('../hooks/useTheme').useTheme>;
+  screenManager: ReturnType<typeof import('../../hooks/useScreenManager').useScreenManager>;
+  themeManager: ReturnType<typeof import('../../hooks/useTheme').useTheme>;
 }
 
 export const AppContent: React.FC<AppContentProps> = ({ 

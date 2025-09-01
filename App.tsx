@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTheme } from "./src/hooks/useTheme";
 import ThemeToggle from './src/components/ui/ThemeToggle';
 import { legacyRouteMapper } from "./src/router";
-import { SCREEN_NAMES } from "../constants";
+import { SCREEN_NAMES } from './constants';
 
 // Lazy load modals
 const ConnectionStatusScreen = lazy(() => import("./src/components/Screens/ConnectionStatusScreen"));
